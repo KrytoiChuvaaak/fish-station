@@ -74,7 +74,7 @@
     - Electrocution
     - RatvarianLanguage
     - PressureImmunity
-    - RadiationImmunity # Fish-edit: иммунитет к облучению (газ Крипиум)
+    - FishRadiationImmunity # Fish-edit: иммунитет к облучению (газ Крипиум)
     - Muted
     - Pacified
     - Flashed

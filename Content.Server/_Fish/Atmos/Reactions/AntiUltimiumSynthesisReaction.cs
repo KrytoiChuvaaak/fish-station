@@ -55,6 +55,24 @@ public sealed partial class AntiUltimiumSynthesisReaction : IGasReactionEffect
             return ReactionResult.NoReaction;
 
         // Fish-edit: не даём реакции превратить весь объём за один тик.
+        // Каждый из 11 газов расходуется на `produce`, поэтому ограничиваем его ещё и
+        // десятой частью запаса лимитирующего реагента — иначе одного минимума мало,
+        // ведь `produce` считается с коэффициентом эффективности 3.0.
+        var maxReagentConversion = new[]
+        {
+            zenthium,
+            krypium,
+            prallium,
+            chaoson,
+            baratrium,
+            ethylium,
+            zimmera,
+            framel,
+            klemennon,
+            protoult,
+            halon
+        }.Min() * Atmospherics.MaxConversionFractionPerTick;
+        produce = MathF.Min(produce, maxReagentConversion);
         produce = MathF.Min(produce, mixture.TotalMoles * Atmospherics.MaxConversionFractionPerTick);
 
         // Расход всех 11 газов (примерно поровну)

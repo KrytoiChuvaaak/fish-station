@@ -33,6 +33,7 @@
           types:
             Asphyxiation: 1
             Poison: 2.5
+      # FIsh edit - старый GenericStatusEffect с несуществующими ключами не срабатывал, переведено на ModifyStatusEffect.
       - !type:ModifyStatusEffect
         conditions:
         - !type:ReagentCondition
@@ -84,6 +85,7 @@
           type: [ Slime ]
         walkSpeedModifier: 0.65
         sprintSpeedModifier: 0.65
+      # FIsh edit - старый GenericStatusEffect с несуществующими ключами не срабатывал, переведено на ModifyStatusEffect.
       - !type:ModifyStatusEffect
         conditions:
         - !type:ReagentCondition
@@ -142,6 +144,7 @@
           min: 1
         walkSpeedModifier: 0.65
         sprintSpeedModifier: 0.65
+      # FIsh edit - старый GenericStatusEffect с несуществующими ключами не срабатывал, переведено на ModifyStatusEffect.
       - !type:ModifyStatusEffect
         conditions:
         - !type:ReagentCondition
@@ -199,6 +202,7 @@
           min: 1
         reagent: ChloralHydrate
         amount: -10
+      # FIsh edit - старые GenericStatusEffect с несуществующими ключами не срабатывали, переведено на ModifyStatusEffect.
       - !type:ModifyStatusEffect
         effectProto: StatusEffectStunned
         time: 10

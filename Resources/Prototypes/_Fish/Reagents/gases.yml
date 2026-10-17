@@ -56,16 +56,17 @@
         sprintSpeedModifier: 0.5
       # Fish-edit: иммунитет к облучению вместо прежнего полного «аннулирования» радиации.
       # Новое облучение не накапливается, но уже полученный радиационный урон не лечится —
-      # для его снятия нужны обычные препараты.
+      # для его снятия нужны обычные препараты. time > 10с — на случай замедленного
+      # метаболизма (например, powered stasis bed), иначе между обработками был бы разрыв.
       - !type:GenericStatusEffect
         conditions:
         - !type:ReagentCondition
           reagent: Krypium
           min: 0.5
-        key: RadiationImmunity
+        key: FishRadiationImmunity
         component: RadiationImmunity
         type: Add
-        time: 1.0
+        time: 11.0
       - !type:PopupMessage
         conditions:
         - !type:ReagentCondition

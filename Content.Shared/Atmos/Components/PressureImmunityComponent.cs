@@ -4,8 +4,9 @@ namespace Content.Shared.Atmos.Components;
 /// Marker component: the entity is immune to pressure (barotrauma).
 /// </summary>
 /// <remarks>
-/// Раньше компонент лежал в Content.Server, из-за чего предсказанный метаболизм на клиенте
+/// FIsh edit: перенесён из Content.Server в Content.Shared, иначе предсказанный метаболизм на клиенте
 /// падал с UnknownComponentException, когда реагент выдавал статус-эффект PressureImmunity.
+/// Файл оставлен в ванильном пути Content.Shared/Atmos/Components, так как сам компонент ванильный.
 /// </remarks>
 [RegisterComponent]
 public sealed partial class PressureImmunityComponent : Component

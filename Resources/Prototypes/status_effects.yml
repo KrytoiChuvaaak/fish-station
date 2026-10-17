@@ -32,7 +32,7 @@
 
 # Fish-edit: иммунитет к облучению (газ Крипиум)
 - type: statusEffect
-  id: RadiationImmunity
+  id: FishRadiationImmunity
 
 - type: statusEffect
   id: Muted
