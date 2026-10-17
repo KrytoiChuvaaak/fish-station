@@ -60,9 +60,9 @@ namespace Content.Server.Atmos.Reactions
                     mixture.AdjustMoles(Gas.Tritium, plasmaBurnRate * supersaturation);
                     mixture.AdjustMoles(Gas.CarbonDioxide, plasmaBurnRate * (1.0f - supersaturation));
 
-                    // Fish-edit: сниженное тепловыделение, чтобы пожары не перегревали замкнутые объёмы до 100 000+ K.
+                    // FIsh edit - мягкий потолок: обычный огонь греет как в ваниле, а разгон в замкнутом объёме давится.
                     energyReleased += Atmospherics.FirePlasmaEnergyReleased * plasmaBurnRate
-                        * Atmospherics.FireEnergyReleasedMultiplier;
+                        * Atmospherics.GetFireEnergyReleasedMultiplier(temperature);
                     energyReleased /= heatScale; // adjust energy to make sure speedup doesn't cause mega temperature rise
                     mixture.ReactionResults[(byte)GasReaction.Fire] += plasmaBurnRate * (1 + oxygenBurnRate);
                 }
