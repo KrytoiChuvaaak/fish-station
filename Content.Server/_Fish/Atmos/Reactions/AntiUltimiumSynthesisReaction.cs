@@ -54,6 +54,9 @@ public sealed partial class AntiUltimiumSynthesisReaction : IGasReactionEffect
         if (produce < 0.1f)
             return ReactionResult.NoReaction;
 
+        // Fish-edit: не даём реакции превратить весь объём за один тик.
+        produce = MathF.Min(produce, mixture.TotalMoles * Atmospherics.MaxConversionFractionPerTick);
+
         // Расход всех 11 газов (примерно поровну)
         mixture.AdjustMoles(Gas.Zenthium, -produce);
         mixture.AdjustMoles(Gas.Krypium, -produce);

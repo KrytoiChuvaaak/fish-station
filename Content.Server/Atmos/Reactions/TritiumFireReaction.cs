@@ -52,6 +52,8 @@ namespace Content.Server.Atmos.Reactions
                 mixture.ReactionResults[(byte)GasReaction.Fire] += burnedFuel;
             }
 
+            // Fish-edit: сниженное тепловыделение, чтобы пожары не перегревали замкнутые объёмы до 100 000+ K.
+            energyReleased *= Atmospherics.FireEnergyReleasedMultiplier;
             energyReleased /= heatScale; // adjust energy to make sure speedup doesn't cause mega temperature rise
             if (energyReleased > 0)
             {
