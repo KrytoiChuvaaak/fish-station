@@ -194,11 +194,11 @@ public sealed partial class DamageableSystem
 
     private void OnIrradiated(Entity<DamageableComponent> ent, ref OnIrradiatedEvent args)
     {
-        // FIsh edit start - иммунитет к облучению (газ Крипиум): новое облучение не накапливается,
+        // Fish-start - иммунитет к облучению (газ Крипиум): новое облучение не накапливается,
         // уже полученный радиационный урон при этом не лечится.
         if (HasComp<RadiationImmunityComponent>(ent.Owner))
             return;
-        // FIsh edit end
+        // Fish-end
 
         var damageValue = FixedPoint2.New(args.TotalRads);
 
