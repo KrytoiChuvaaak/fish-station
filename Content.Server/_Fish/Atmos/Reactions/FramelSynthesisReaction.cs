@@ -41,7 +41,7 @@ public sealed partial class FramelSynthesisReaction : IGasReactionEffect
         if (produceFramel < 0.08f)
             return ReactionResult.NoReaction;
 
-        // Fish-edit: не даём реакции превратить весь объём за один тик.
+        // Не даём реакции превратить весь объём за один тик.
         produceFramel = MathF.Min(produceFramel, mixture.TotalMoles * Atmospherics.MaxConversionFractionPerTick);
 
         // расход основных реагентов

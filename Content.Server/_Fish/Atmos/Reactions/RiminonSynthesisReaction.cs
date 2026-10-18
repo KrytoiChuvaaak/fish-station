@@ -28,7 +28,7 @@ public sealed partial class RiminonSynthesisReaction : IGasReactionEffect
         var totalHallu = bz + frezon + healium + nitrium;
         var efficiency = 1.5f;
 
-        // Fish-edit: превращаем постепенно — не более MaxConversionFractionPerTick от каждого газа за тик.
+        // Превращаем постепенно — не более MaxConversionFractionPerTick от каждого газа за тик.
         var conversion = Atmospherics.MaxConversionFractionPerTick;
         var produce = totalHallu * efficiency * conversion;
 

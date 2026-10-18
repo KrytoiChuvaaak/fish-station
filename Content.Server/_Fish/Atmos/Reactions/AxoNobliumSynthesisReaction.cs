@@ -42,7 +42,7 @@ public sealed partial class AxoNobliumSynthesisReaction : IGasReactionEffect
         if (produce < 0.1f)
             return ReactionResult.NoReaction;
 
-        // Fish-edit: не даём реакции превратить весь объём за один тик.
+        // Не даём реакции превратить весь объём за один тик.
         produce = MathF.Min(produce, mixture.TotalMoles * Atmospherics.MaxConversionFractionPerTick);
 
         mixture.AdjustMoles(Gas.Garodin, -produce * 0.75f);

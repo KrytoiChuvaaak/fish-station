@@ -4,7 +4,7 @@ using Content.Server.Atmos.Components;
 using Content.Shared._Sunrise.Mood;
 using Content.Shared.Alert;
 using Content.Shared.Atmos;
-using Content.Shared.Atmos.Components;
+using Content.Shared.Atmos.Components; // Fish-edit: PressureImmunityComponent перенесён из Content.Server, иначе падает предсказанный метаболизм
 using Content.Shared.Damage.Components;
 using Content.Shared.Damage.Systems;
 using Content.Shared.Database;

@@ -15,9 +15,10 @@
     state: icon
   - type: TimedDespawn
     lifetime: 90
-  # Fish-edit: голограмма не должна быть кликабельной целью (иначе по ней бьют предметами,
+  # Fish-start - голограмма не должна быть кликабельной целью (иначе по ней бьют предметами,
   # а РСУ не может снести плитку под ней) и не должна получать урон от ударов.
   # Поэтому Clickable/Injurable убраны из базы — их возвращают только те голограммы, которым это нужно.
+  # Fish-end
   - type: Damageable
   - type: Destructible
     thresholds:
@@ -123,9 +124,10 @@
     - type: Climbable
     # Fish-edit: возвращаем кликабельность, как было до апстрим-переноса.
     - type: Clickable
-    # Fish-edit: барьер по задумке «слабый», поэтому, в отличие от прочих голограмм, остаётся разрушаемым.
+    # Fish-start - барьер по задумке «слабый», поэтому, в отличие от прочих голограмм, остаётся разрушаемым.
     - type: Injurable
       damageContainer: Inorganic
+    # Fish-end
 
 - type: entity
   id: HolosignForcefield

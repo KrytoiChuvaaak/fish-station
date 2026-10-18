@@ -32,7 +32,7 @@ public sealed partial class GarodinSynthesisReaction : IGasReactionEffect
         if (produce < 0.08f)
             return ReactionResult.NoReaction;
 
-        // Fish-edit: не даём реакции превратить весь объём за один тик.
+        // Не даём реакции превратить весь объём за один тик.
         produce = MathF.Min(produce, mixture.TotalMoles * Atmospherics.MaxConversionFractionPerTick);
 
         // Потребляем

@@ -27,7 +27,7 @@ public sealed partial class UltimiumSynthesisReaction : IGasReactionEffect
         if (produce < 0.05f)
             return ReactionResult.NoReaction;
 
-        // Fish-edit: не даём реакции превратить весь объём за один тик.
+        // Не даём реакции превратить весь объём за один тик.
         produce = MathF.Min(produce, mixture.TotalMoles * Atmospherics.MaxConversionFractionPerTick);
 
         mixture.AdjustMoles(Gas.AntiUltimium, -produce * 0.9f);

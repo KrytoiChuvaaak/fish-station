@@ -33,7 +33,7 @@
           types:
             Asphyxiation: 1
             Poison: 2.5
-      # Fish-edit: старый GenericStatusEffect с несуществующими ключами не срабатывал, переведено на ModifyStatusEffect.
+      # Fish-start - старый GenericStatusEffect с несуществующими ключами не срабатывал, переведено на ModifyStatusEffect.
       - !type:ModifyStatusEffect
         conditions:
         - !type:ReagentCondition
@@ -45,6 +45,7 @@
         effectProto: StatusEffectSeeingRainbow
         type: Add
         time: 10
+      # Fish-end
       - !type:Emote
         conditions:
         - !type:ReagentCondition
@@ -85,7 +86,7 @@
           type: [ Slime ]
         walkSpeedModifier: 0.65
         sprintSpeedModifier: 0.65
-      # Fish-edit: старый GenericStatusEffect с несуществующими ключами не срабатывал, переведено на ModifyStatusEffect.
+      # Fish-start - старый GenericStatusEffect с несуществующими ключами не срабатывал, переведено на ModifyStatusEffect.
       - !type:ModifyStatusEffect
         conditions:
         - !type:ReagentCondition
@@ -96,6 +97,7 @@
         effectProto: StatusEffectForcedSleeping
         time: 10
         type: Add
+      # Fish-end
 
 - type: reagent
   id: Healium
@@ -144,7 +146,7 @@
           min: 1
         walkSpeedModifier: 0.65
         sprintSpeedModifier: 0.65
-      # Fish-edit: старый GenericStatusEffect с несуществующими ключами не срабатывал, переведено на ModifyStatusEffect.
+      # Fish-start - старый GenericStatusEffect с несуществующими ключами не срабатывал, переведено на ModifyStatusEffect.
       - !type:ModifyStatusEffect
         conditions:
         - !type:ReagentCondition
@@ -153,6 +155,7 @@
         effectProto: StatusEffectForcedSleeping
         time: 3
         type: Add
+      # Fish-end
 
 
 - type: reagent
@@ -202,7 +205,7 @@
           min: 1
         reagent: ChloralHydrate
         amount: -10
-      # Fish-edit: старые GenericStatusEffect с несуществующими ключами не срабатывали, переведено на ModifyStatusEffect.
+      # Fish-start - старые GenericStatusEffect с несуществующими ключами не срабатывали, переведено на ModifyStatusEffect.
       - !type:ModifyStatusEffect
         effectProto: StatusEffectStunned
         time: 10
@@ -219,6 +222,7 @@
         effectProto: StatusEffectForcedSleeping
         time: 10
         type: Remove
+      # Fish-end
       - !type:Jitter
       - !type:PopupMessage
         visualType: Medium

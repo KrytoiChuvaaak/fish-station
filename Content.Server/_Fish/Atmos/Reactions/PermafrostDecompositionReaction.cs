@@ -19,7 +19,7 @@ public sealed partial class PermafrostDecompositionReaction : IGasReactionEffect
             return ReactionResult.NoReaction;
 
         // медленное разложение
-        // Fish-edit: абсолютная скорость разложения превращала малый объём газа целиком за один тик,
+        // Абсолютная скорость разложения превращала малый объём газа целиком за один тик,
         // поэтому дополнительно ограничиваем её долей от имеющегося пермафроста.
         var decompRate = MathF.Min((50f - temperature) * 0.5f,
             permafrost * Atmospherics.MaxConversionFractionPerTick);

@@ -3,7 +3,7 @@ using Content.Shared._Sunrise.NightVision.Components;
 using Content.Shared._Sunrise.CollectiveMind;
 using Content.Shared._Sunrise.FleshCult;
 using Content.Shared.Actions.Components;
-using Content.Shared.Atmos.Components;
+using Content.Shared.Atmos.Components; // Fish-edit: PressureImmunityComponent перенесён из Content.Server, иначе падает предсказанный метаболизм
 using Content.Shared.Body;
 using Content.Shared.Cuffs.Components;
 using Content.Shared.Electrocution;

@@ -22,7 +22,7 @@ public sealed partial class ProtoUltimiumDecompositionReaction : IGasReactionEff
         // механика, что и у N2O, но медленнее
         var burnedFuel = protoMoles / 3.0f;   // 3.0f - скорость разложения 
 
-        // Fish-edit: не даём реакции превратить весь объём за один тик.
+        // Не даём реакции превратить весь объём за один тик.
         burnedFuel = MathF.Min(burnedFuel, mixture.TotalMoles * Atmospherics.MaxConversionFractionPerTick);
 
         if (burnedFuel <= 0 || protoMoles - burnedFuel < 0)

@@ -54,7 +54,7 @@ public sealed partial class AntiUltimiumSynthesisReaction : IGasReactionEffect
         if (produce < 0.1f)
             return ReactionResult.NoReaction;
 
-        // Fish-edit: не даём реакции превратить весь объём за один тик.
+        // Не даём реакции превратить весь объём за один тик.
         // Каждый из 11 газов расходуется на `produce`, поэтому ограничиваем его ещё и
         // десятой частью запаса лимитирующего реагента — иначе одного минимума мало,
         // ведь `produce` считается с коэффициентом эффективности 3.0.
