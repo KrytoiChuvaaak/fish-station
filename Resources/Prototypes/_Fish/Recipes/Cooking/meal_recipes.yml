@@ -37,7 +37,7 @@
 
 # Рецепт торта с мозгами из одного мозга (без обычного торта), по просьбе: мозг в микроволновку на 15 секунд.
 - type: microwaveMealRecipe
-  id: RecipeBrainCakeFish
+  id: FishRecipeBrainCake
   name: brain cake recipe
   result: FoodCakeBrain
   time: 15
