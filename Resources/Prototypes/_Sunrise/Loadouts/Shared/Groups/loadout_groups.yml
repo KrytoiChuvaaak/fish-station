@@ -814,6 +814,7 @@
   maxLimit: 1
   loadouts:
   - MedicalHeadMirror
+  - BeretSeniorPhysician # Fish-edit - гардероб ведущего врача открыт для всех врачей
 
 - type: loadoutGroup
   id: SunrisePsychologistOuterClothing
@@ -825,6 +826,7 @@
   - MedicalDoctorWintercoat
   - SunriseWinterColorWhite
   - SunriseWinterColorCyan
+  - CoatLabSeniorPhysician # Fish-edit - гардероб ведущего врача открыт для всех врачей
 
 
 - type: loadoutGroup
@@ -939,6 +941,7 @@
   - SunriseHatRedsoft
   - SunriseHatCyansoft
   - MedicalHeadMirror
+  - BeretSeniorPhysician # Fish-edit - гардероб ведущего врача открыт для всех врачей
 
 - type: loadoutGroup
   id: PathologistOuterClothing
@@ -954,6 +957,7 @@
   - SunriseWinterColorRed
   - SunriseWinterColorGreen
   - SunriseWinterColorCyan
+  - CoatLabSeniorPhysician # Fish-edit - гардероб ведущего врача открыт для всех врачей
 
 
 - type: loadoutGroup
