@@ -19,10 +19,4 @@ public sealed partial class SalvageDifficultyPrototype : IPrototype
     /// </summary>
     [DataField]
     public float Probability = 1f;
-
-    /// <summary>
-    /// Длительность экспедиции этой сложности. Ноль — берётся из CVar salvage.expedition_duration.
-    /// </summary>
-    [DataField]
-    public TimeSpan Duration = TimeSpan.Zero;
 }

@@ -68,10 +68,11 @@ public abstract partial class SharedSalvageSystem : EntitySystem
             mods.Add(Loc.GetString(light.Description));
         }
 
-        // Sunrise-Edit - время экспедиции теперь зависит от сложности; если не задано, берётся CVar salvage.expedition_duration
+        // FIsh edit start - время экспедиции зависит от сложности; ноль означает CVar salvage.expedition_duration
         var duration = difficulty.Duration > TimeSpan.Zero
             ? difficulty.Duration
             : TimeSpan.FromSeconds(CfgManager.GetCVar(CCVars.SalvageExpeditionDuration));
+        // FIsh edit end
 
         return new SalvageMission(seed, dungeon.ID, faction.ID, biome.ID, air.ID, temp.Temperature, light.Color, duration, mods);
     }
