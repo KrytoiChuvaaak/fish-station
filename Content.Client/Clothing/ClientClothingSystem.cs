@@ -9,6 +9,7 @@ using Content.Shared.Humanoid;
 using Content.Shared.Inventory;
 using Content.Shared.Inventory.Events;
 using Content.Shared.Item;
+using Content.Shared._Fish.Clothing; // Fish-Edit - медали на форме
 using Robust.Client.GameObjects;
 using Robust.Client.Graphics;
 using Robust.Client.ResourceManagement;
@@ -54,6 +55,7 @@ public sealed partial class ClientClothingSystem : ClothingSystem
     [Dependency] private InventorySystem _inventorySystem = default!;
     [Dependency] private DisplacementMapSystem _displacement = default!;
     [Dependency] private SpriteSystem _sprite = default!;
+    [Dependency] private ClothingMedalsSystem _clothingMedals = default!; // Fish-Edit - медали на форме
 
     public override void Initialize()
     {
@@ -135,6 +137,10 @@ public sealed partial class ClientClothingSystem : ClothingSystem
             item.MappedLayer = key;
             args.Layers.Add((key, layer));
         }
+
+        // Fish edit start - слои медалей, прикреплённых к форме
+        _clothingMedals.AppendMedalVisuals(uid, args.Layers);
+        // Fish edit end
     }
 
     /// <summary>
