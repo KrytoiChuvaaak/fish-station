@@ -68140,13 +68140,11 @@ entities:
     - type: Transform
       pos: -1.5648274,-76.65145
       parent: 2
-    - type: ScaleSprite
   - uid: 8822
     components:
     - type: Transform
       pos: -1.5492024,-76.43255
       parent: 2
-    - type: ScaleSprite
 - proto: WeaponMechCombatChaingunImprovised
   entities:
   - uid: 11071
