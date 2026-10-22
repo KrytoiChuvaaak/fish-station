@@ -3,6 +3,7 @@ using Content.Shared.Hands;
 using Content.Shared.Interaction.Events;
 using Content.Shared.Item;
 using Content.Shared.Popups;
+using Robust.Shared.Network;
 
 namespace Content.Shared._Fish.Ghost;
 
@@ -14,6 +15,7 @@ public sealed partial class AdminGhostSystem : EntitySystem
 {
     [Dependency] private SharedActionsSystem _actions = default!;
     [Dependency] private SharedPopupSystem _popup = default!;
+    [Dependency] private INetManager _net = default!;
 
     public override void Initialize()
     {
@@ -34,6 +36,8 @@ public sealed partial class AdminGhostSystem : EntitySystem
     private void OnMapInit(Entity<AdminGhostComponent> ent, ref MapInitEvent args)
     {
         _actions.AddAction(ent.Owner, ref ent.Comp.InteractionToggleActionEntity, ent.Comp.InteractionToggleAction);
+        // Самозапрет по умолчанию включён, поэтому сразу показываем кнопку в активном состоянии.
+        _actions.SetToggled(ent.Comp.InteractionToggleActionEntity, ent.Comp.InteractionRestricted);
         Dirty(ent.Owner, ent.Comp);
     }
 
@@ -47,12 +51,28 @@ public sealed partial class AdminGhostSystem : EntitySystem
         if (args.Handled)
             return;
 
-        if (TrySetInteractionRestricted((ent.Owner, ent.Comp), !ent.Comp.InteractionRestricted))
-            args.Handled = true;
+        // Кулдаун кнопки после нажатия: следующее нажатие доступно только через несколько секунд.
+        // Задаём именно задержку использования, потому что сам кулдаун действия снимается сразу после выполнения.
+        _actions.SetUseDelay(ent.Comp.InteractionToggleActionEntity, ent.Comp.ToggleCooldown);
+
+        args.Handled = true;
+
+        // Состояние меняет только сервер, клиент получает его через синхронизацию компонента.
+        if (!_net.IsServer)
+            return;
+
+        // Само переключение происходит сразу, без задержки.
+        TrySetInteractionRestricted((ent.Owner, ent.Comp), !ent.Comp.InteractionRestricted);
     }
 
     private void OnInteractionAttempt(Entity<AdminGhostComponent> ent, ref InteractionAttemptEvent args)
     {
+        // Проверка возможности выполнить собственное действие (Target == null) — это кнопки самого агоста
+        // (переключение самозапрета, интерфейсы консолей). Их запрет блокировать не должен, иначе агост
+        // не сможет снять запрет. Блокируем только взаимодействие с объектами мира.
+        if (args.Target == null)
+            return;
+
         if (ent.Comp.InteractionRestricted)
             args.Cancelled = true;
     }

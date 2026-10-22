@@ -1,3 +1,4 @@
+using System;
 using Content.Shared.Actions;
 using Robust.Shared.GameStates;
 using Robust.Shared.Prototypes;
@@ -24,8 +25,21 @@ public sealed partial class AdminGhostComponent : Component
     /// Запрещено ли призраку взаимодействовать с миром.
     /// Нужно, чтобы случайно не подбирать и не использовать предметы во время ивента.
     /// </summary>
+    /// <remarks>
+    /// По умолчанию включено: самозапрет действует сразу при входе в агоста.
+    /// </remarks>
     [DataField, AutoNetworkedField]
-    public bool InteractionRestricted;
+    public bool InteractionRestricted = true;
+
+    /// <summary>
+    /// Кулдаун кнопки переключения после нажатия.
+    /// </summary>
+    /// <remarks>
+    /// Сколько секунд нельзя нажимать кнопку повторно, чтобы нельзя было спамить переключениями.
+    /// Само переключение при этом происходит сразу.
+    /// </remarks>
+    [DataField]
+    public TimeSpan ToggleCooldown = TimeSpan.FromSeconds(3);
 }
 
 /// <summary>

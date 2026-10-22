@@ -142,6 +142,8 @@
     iconOn: { sprite: Structures/Machines/parts.rsi, state: box_2 }
     keywords: [ "AI", "console", "interface" ]
     priority: -10
+    # Интерфейсы консолей должны открываться даже при включённом самозапрете на взаимодействие.
+    checkCanInteract: false
 
 - type: entity
   parent: BaseAGhostAction
