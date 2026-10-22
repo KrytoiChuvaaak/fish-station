@@ -138,7 +138,7 @@ public sealed partial class ClientClothingSystem : ClothingSystem
         }
 
         // Fish edit start - слои медалей, прикреплённых к форме
-        _clothingMedals.AppendMedalVisuals(uid, args.Layers);
+        _clothingMedals.AppendMedalVisuals(ent.Owner, args.Layers);
         // Fish edit end
     }
 

@@ -73,7 +73,7 @@ public sealed partial class ClothingMedalsSystem : EntitySystem
         var medals = new List<string>(MedalSlotCount);
         foreach (var slotId in MedalSlotIds)
         {
-            if (_itemSlots.TryGetSlot(ent, slotId, out var slot) &&
+            if (_itemSlots.TryGetSlot(ent.Owner, slotId, out var slot) &&
                 slot.Item is { } medal)
                 medals.Add(Name(medal));
         }
@@ -141,7 +141,7 @@ public sealed partial class ClothingMedalsSystem : EntitySystem
 
         foreach (var slotId in MedalSlotIds)
         {
-            if (!_itemSlots.TryGetSlot(ent, slotId, out var slot) ||
+            if (!_itemSlots.TryGetSlot(ent.Owner, slotId, out var slot) ||
                 slot.Item is not { } medal ||
                 !CanDetachMedal(ent, slot, verbArgs.User))
                 continue;
@@ -240,7 +240,7 @@ public sealed partial class ClothingMedalsSystem : EntitySystem
         if (!_hands.TryDropIntoContainer(user, medal, slot.ContainerSlot))
             return false;
 
-        _popup.PopupPredicted(Loc.GetString("clothing-medal-attached"), uniform, user);
+        _popup.PopupEntity(Loc.GetString("clothing-medal-attached"), uniform);
         return true;
     }
 
@@ -254,7 +254,7 @@ public sealed partial class ClothingMedalsSystem : EntitySystem
             if (!_itemSlots.TryGetSlot(uniform, slotId, out var candidate) || candidate.HasItem)
                 continue;
 
-            if (!_itemSlots.CanInsert(uniform, medal, user, candidate))
+            if (!_itemSlots.CanInsert(uniform, candidate, medal, user))
                 continue;
 
             slot = candidate;
@@ -274,7 +274,7 @@ public sealed partial class ClothingMedalsSystem : EntitySystem
 
     private bool CanDetachMedal(EntityUid uniform, ItemSlot slot, EntityUid user)
     {
-        return slot.HasItem && _itemSlots.CanEject(uniform, user, slot);
+        return slot.HasItem && _itemSlots.CanEject(uniform, slot, user);
     }
 
     private static bool IsMedalSlot(string slotId)
