@@ -14,7 +14,7 @@ using Robust.Shared.Utility;
 namespace Content.Shared._Fish.Clothing;
 
 /// <summary>
-///     Позволяет прикреплять медали к форме и отображать их поверх спрайта комбинезона.
+///     Позволяет прикреплять медали к форме и отображать последнюю из них поверх спрайта комбинезона.
 /// </summary>
 public sealed partial class ClothingMedalsSystem : EntitySystem
 {
@@ -27,10 +27,10 @@ public sealed partial class ClothingMedalsSystem : EntitySystem
     private const string MedalState = "equipped-NECK";
 
     /// <summary>
-    ///     Последняя прикреплённая медаль для каждой формы. На модели показываем только её,
+    ///     Порядок прикрепления медалей для каждой формы. На модели показываем последнюю,
     ///     как обычный предмет в слоте шеи.
     /// </summary>
-    private readonly Dictionary<EntityUid, EntityUid> _lastAttached = new();
+    private readonly Dictionary<EntityUid, List<EntityUid>> _attachmentOrder = new();
 
     private static readonly VerbCategory MedalCategory =
         new("clothing-medal-category", "/Textures/Interface/VerbIcons/group.svg.192dpi.png");
@@ -62,7 +62,7 @@ public sealed partial class ClothingMedalsSystem : EntitySystem
 
     private void OnClothingShutdown(Entity<ClothingComponent> ent, ref ComponentShutdown args)
     {
-        _lastAttached.Remove(ent);
+        _attachmentOrder.Remove(ent);
     }
 
     private void OnExamined(Entity<ClothingComponent> ent, ref ExaminedEvent args)
@@ -90,7 +90,16 @@ public sealed partial class ClothingMedalsSystem : EntitySystem
         if (!IsMedalSlot(args.Container.ID))
             return;
 
-        _lastAttached[ent] = args.Entity;
+        if (!_attachmentOrder.TryGetValue(ent, out var order))
+        {
+            order = new List<EntityUid>(MedalSlotCount);
+            _attachmentOrder[ent] = order;
+        }
+
+        // Перемещаем медаль в конец списка, чтобы она считалась последней прикреплённой.
+        order.Remove(args.Entity);
+        order.Add(args.Entity);
+
         _item.VisualsChanged(ent);
     }
 
@@ -99,8 +108,12 @@ public sealed partial class ClothingMedalsSystem : EntitySystem
         if (!IsMedalSlot(args.Container.ID))
             return;
 
-        if (_lastAttached.TryGetValue(ent, out var last) && last == args.Entity)
-            _lastAttached.Remove(ent);
+        if (_attachmentOrder.TryGetValue(ent, out var order))
+        {
+            order.Remove(args.Entity);
+            if (order.Count == 0)
+                _attachmentOrder.Remove(ent);
+        }
 
         _item.VisualsChanged(ent);
     }
@@ -145,7 +158,7 @@ public sealed partial class ClothingMedalsSystem : EntitySystem
     }
 
     /// <summary>
-    ///     Добавляет слои прикреплённых медалей в список слоёв одежды.
+    ///     Добавляет слой последней прикреплённой медали в список слоёв одежды.
     /// </summary>
     /// <remarks>
     ///     Вызывается из <see cref="Content.Client.Clothing.ClientClothingSystem"/> после слоёв формы,
@@ -175,10 +188,22 @@ public sealed partial class ClothingMedalsSystem : EntitySystem
         if (!HasComp<ItemSlotsComponent>(uniform))
             return false;
 
-        if (_lastAttached.TryGetValue(uniform, out var last) && IsAttachedMedal(uniform, last))
+        if (_attachmentOrder.TryGetValue(uniform, out var order))
         {
-            medal = last;
-            return true;
+            for (var i = order.Count - 1; i >= 0; i--)
+            {
+                var candidate = order[i];
+                if (!IsAttachedMedal(uniform, candidate))
+                {
+                    order.RemoveAt(i);
+                    continue;
+                }
+
+                medal = candidate;
+                return true;
+            }
+
+            _attachmentOrder.Remove(uniform);
         }
 
         // После переподключения порядок вставки неизвестен — берём последнюю заполненную ячейку.
