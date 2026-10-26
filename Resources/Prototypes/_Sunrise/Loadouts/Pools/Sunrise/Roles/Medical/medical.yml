@@ -48,13 +48,13 @@
   id: SunriseJobMedicalIntern
   groups:
   - GroupTankHarness
-  - SunriseMedicalInternHead # Fish-edit - группы интерна без гардероба ведущего врача (открыт всем врачам кроме интерна)
+  - FishMedicalInternHead # Fish-edit - группы интерна без гардероба ведущего врача (открыт всем врачам кроме интерна)
   - SunriseMedicalMask
   - MedicalInternJumpsuit
   - SunriseMedicalGloves
   - MedicalBackpack
   - SeniorPhysicianBelt # Fish-edit
-  - SunriseMedicalInternOuterClothing # Fish-edit
+  - FishMedicalInternOuterClothing # Fish-edit
   - SunriseMedicalDoctorNeck
   - SunriseMedicalShoes
   - SunriseGlasses
