@@ -67,10 +67,11 @@ public sealed partial class AdminGhostSystem : EntitySystem
 
     private void OnInteractionAttempt(Entity<AdminGhostComponent> ent, ref InteractionAttemptEvent args)
     {
-        // Проверка возможности выполнить собственное действие (Target == null) — это кнопки самого агоста
-        // (переключение самозапрета, интерфейсы консолей). Их запрет блокировать не должен, иначе агост
-        // не сможет снять запрет. Блокируем только взаимодействие с объектами мира.
-        if (args.Target == null)
+        // Проверка возможности выполнить собственное действие (Target == null) или взаимодействие с самим собой
+        // (Target == ent.Owner, например собственные BUI консолей) — это кнопки и интерфейсы самого агоста.
+        // Их запрет блокировать не должен, иначе агост не сможет снять запрет или пользоваться консолями.
+        // Блокируем только взаимодействие с объектами мира.
+        if (args.Target == null || args.Target == ent.Owner)
             return;
 
         if (ent.Comp.InteractionRestricted)

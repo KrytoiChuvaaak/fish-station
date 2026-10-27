@@ -49,14 +49,14 @@ public sealed class AdminGhostTests : GameTest
             mindSystem.TransferTo(mind, body, mind: mind);
         });
 
-        await pair.RunTicksSync(10);
+        await pair.RunUntilSynced();
 
         await server.WaitAssertion(() =>
         {
             serverConsole.ExecuteCommand(player, "aghost");
         });
 
-        await pair.RunTicksSync(20);
+        await pair.RunUntilSynced();
 
         EntityUid ghost = default!;
         EntityUid item = default!;
@@ -90,6 +90,11 @@ public sealed class AdminGhostTests : GameTest
             var ownAttempt = new InteractionAttemptEvent(ghost, null);
             entMan.EventBus.RaiseLocalEvent(ghost, ref ownAttempt);
             Assert.That(ownAttempt.Cancelled, Is.False);
+
+            // Собственные интерфейсы (BUI) тоже должны открываться: цель совпадает с самим агостом.
+            var selfAttempt = new InteractionAttemptEvent(ghost, ghost);
+            entMan.EventBus.RaiseLocalEvent(ghost, ref selfAttempt);
+            Assert.That(selfAttempt.Cancelled, Is.False);
 
             // А вот взаимодействие с объектами мира — должно блокироваться.
             var worldAttempt = new InteractionAttemptEvent(ghost, item);
