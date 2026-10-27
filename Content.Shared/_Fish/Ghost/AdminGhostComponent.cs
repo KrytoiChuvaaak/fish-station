@@ -18,7 +18,7 @@ public sealed partial class AdminGhostComponent : Component
     [DataField]
     public EntProtoId InteractionToggleAction = "FishActionAghostToggleInteraction";
 
-    [DataField, AutoNetworkedField]
+    [AutoNetworkedField]
     public EntityUid? InteractionToggleActionEntity;
 
     /// <summary>

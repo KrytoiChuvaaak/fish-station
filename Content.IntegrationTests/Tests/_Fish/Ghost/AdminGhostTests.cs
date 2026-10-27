@@ -1,10 +1,12 @@
-#nullable enable
+﻿#nullable enable
 using System.Linq;
 using Content.IntegrationTests.Fixtures;
 using Content.Shared._Fish.Ghost;
 using Content.Shared.Actions;
 using Content.Shared.Actions.Components;
+using Content.Shared.Hands;
 using Content.Shared.Interaction.Events;
+using Content.Shared.Item;
 using Content.Shared.Mind;
 using Content.Shared.Mind.Components;
 using Robust.Server.Console;
@@ -33,13 +35,14 @@ public sealed class AdminGhostTests : GameTest
         var serverConsole = server.ResolveDependency<IServerConsoleHost>();
 
         var player = playerMan.Sessions.Single();
+        var testMap = await pair.CreateTestMap();
 
         // У игрока должно быть сознание и тело, иначе команда aghost не сработает.
         await server.WaitAssertion(() =>
         {
             var mindSystem = entMan.System<SharedMindSystem>();
 
-            var body = entMan.SpawnEntity(null, new MapCoordinates());
+            var body = entMan.SpawnEntity(null, testMap.GridCoords);
             entMan.EnsureComponent<MindContainerComponent>(body);
 
             var mind = mindSystem.CreateMind(player.UserId, "Aghost Tester");
@@ -56,11 +59,13 @@ public sealed class AdminGhostTests : GameTest
         await pair.RunTicksSync(20);
 
         EntityUid ghost = default!;
+        EntityUid item = default!;
 
         await server.WaitAssertion(() =>
         {
             Assert.That(player.AttachedEntity, Is.Not.Null);
             ghost = player.AttachedEntity!.Value;
+            item = entMan.SpawnEntity("ClothingBackpack", MapCoordinates.Nullspace);
 
             var comp = entMan.GetComponent<AdminGhostComponent>(ghost);
 
@@ -87,9 +92,22 @@ public sealed class AdminGhostTests : GameTest
             Assert.That(ownAttempt.Cancelled, Is.False);
 
             // А вот взаимодействие с объектами мира — должно блокироваться.
-            var worldAttempt = new InteractionAttemptEvent(ghost, entMan.SpawnEntity("ClothingBackpack", MapCoordinates.Nullspace));
+            var worldAttempt = new InteractionAttemptEvent(ghost, item);
             entMan.EventBus.RaiseLocalEvent(ghost, ref worldAttempt);
             Assert.That(worldAttempt.Cancelled, Is.True);
+
+            // Остальные попытки взаимодействия тоже должны отменяться при включённом запрете.
+            var useAttempt = new UseAttemptEvent(ghost, item);
+            entMan.EventBus.RaiseLocalEvent(ghost, useAttempt);
+            Assert.That(useAttempt.Cancelled, Is.True);
+
+            var pickupAttempt = new PickupAttemptEvent(ghost, item, true);
+            entMan.EventBus.RaiseLocalEvent(ghost, pickupAttempt);
+            Assert.That(pickupAttempt.Cancelled, Is.True);
+
+            var dropAttempt = new DropAttemptEvent();
+            entMan.EventBus.RaiseLocalEvent(ghost, dropAttempt);
+            Assert.That(dropAttempt.Cancelled, Is.True);
         });
 
         // Нажатие переключает состояние сразу, но кнопка уходит в кулдаун.
@@ -98,7 +116,7 @@ public sealed class AdminGhostTests : GameTest
             var comp = entMan.GetComponent<AdminGhostComponent>(ghost);
             var actionUid = comp.InteractionToggleActionEntity!.Value;
             var action = new Entity<ActionComponent>(actionUid, entMan.GetComponent<ActionComponent>(actionUid));
-            var performer = new Entity<ActionsComponent>(ghost, entMan.GetComponent<ActionsComponent>(ghost));
+            var performer = new Entity<ActionsComponent?>(ghost, entMan.GetComponent<ActionsComponent>(ghost));
 
             entMan.System<SharedActionsSystem>().PerformAction(performer, action);
 
@@ -107,6 +125,26 @@ public sealed class AdminGhostTests : GameTest
 
             // Кнопка ушла в кулдаун на несколько секунд после нажатия.
             Assert.That(entMan.GetComponent<ActionComponent>(actionUid).Cooldown, Is.Not.Null);
+        });
+
+        await server.WaitAssertion(() =>
+        {
+            // После снятия запрета те же события больше не должны отменяться.
+            var interactionAttempt = new InteractionAttemptEvent(ghost, item);
+            entMan.EventBus.RaiseLocalEvent(ghost, ref interactionAttempt);
+            Assert.That(interactionAttempt.Cancelled, Is.False);
+
+            var useAttempt = new UseAttemptEvent(ghost, item);
+            entMan.EventBus.RaiseLocalEvent(ghost, useAttempt);
+            Assert.That(useAttempt.Cancelled, Is.False);
+
+            var pickupAttempt = new PickupAttemptEvent(ghost, item, true);
+            entMan.EventBus.RaiseLocalEvent(ghost, pickupAttempt);
+            Assert.That(pickupAttempt.Cancelled, Is.False);
+
+            var dropAttempt = new DropAttemptEvent();
+            entMan.EventBus.RaiseLocalEvent(ghost, dropAttempt);
+            Assert.That(dropAttempt.Cancelled, Is.False);
         });
     }
 }

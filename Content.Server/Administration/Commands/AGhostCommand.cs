@@ -4,7 +4,8 @@ using Content.Server.GameTicking;
 using Content.Server.Ghost;
 using Content.Server.Mind;
 using Content.Shared.Administration;
-using Content.Shared.Ghost;
+using Content.Shared.Ghost.Components;
+using Content.Shared.Ghost.Systems;
 using Content.Shared.Mind;
 using Robust.Server.GameObjects;
 using Robust.Server.Player;
@@ -96,11 +97,14 @@ public sealed partial class AGhostCommand : LocalizedCommands
 
         var canReturn = mind.CurrentEntity != null
                         && !_entities.HasComponent<GhostComponent>(mind.CurrentEntity);
-        var coordinates = player!.AttachedEntity != null
-            ? _entities.GetComponent<TransformComponent>(player.AttachedEntity.Value).Coordinates
-            : gameTicker.GetObserverSpawnPoint();
-        var ghost = _entities.SpawnEntity(GameTicker.AdminObserverPrototypeName, coordinates);
-        transformSystem.AttachToGridOrMap(ghost, _entities.GetComponent<TransformComponent>(ghost));
+
+        if (player!.AttachedEntity == null
+            || !transformSystem.TryGetMapOrGridCoordinates(player.AttachedEntity.Value, out var coordinates))
+        {
+            coordinates = gameTicker.GetObserverSpawnPoint();
+        }
+
+        var ghost = _entities.SpawnEntity(GameTicker.AdminObserverPrototypeName, coordinates.Value);
 
         if (canReturn)
         {
@@ -118,7 +122,7 @@ public sealed partial class AGhostCommand : LocalizedCommands
             mindSystem.TransferTo(mindId, ghost, mind: mind);
         }
 
-        // Fish added start - подписываем агоста его админской должностью, чтобы его было видно среди других призраков
+        // Fish-start: подписываем агоста его админской должностью, чтобы его было видно среди других призраков
         if (_adminManager.GetAdminData(player!)?.Title is { } adminTitle
             && !string.IsNullOrWhiteSpace(adminTitle))
         {
@@ -127,7 +131,7 @@ public sealed partial class AGhostCommand : LocalizedCommands
                 ("title", adminTitle),
                 ("name", ghostName)));
         }
-        // Fish added end
+        // Fish-end
 
         var comp = _entities.GetComponent<GhostComponent>(ghost);
         ghostSystem.SetCanReturnToBody((ghost, comp), canReturn);
