@@ -17,6 +17,7 @@ public sealed partial class AdminGhostSystem : EntitySystem
     [Dependency] private SharedPopupSystem _popup = default!;
     [Dependency] private INetManager _net = default!;
 
+    /// <inheritdoc/>
     public override void Initialize()
     {
         base.Initialize();
@@ -33,6 +34,9 @@ public sealed partial class AdminGhostSystem : EntitySystem
         SubscribeLocalEvent<AdminGhostComponent, DropAttemptEvent>(OnDropAttempt);
     }
 
+    /// <summary>
+    /// Выдаёт агосту кнопку самозапрета и выставляет её состояние.
+    /// </summary>
     private void OnMapInit(Entity<AdminGhostComponent> ent, ref MapInitEvent args)
     {
         _actions.AddAction(ent.Owner, ref ent.Comp.InteractionToggleActionEntity, ent.Comp.InteractionToggleAction);
@@ -41,14 +45,24 @@ public sealed partial class AdminGhostSystem : EntitySystem
         Dirty(ent.Owner, ent.Comp);
     }
 
+    /// <summary>
+    /// Убирает кнопку самозапрета вместе с компонентом.
+    /// </summary>
     private void OnShutdown(Entity<AdminGhostComponent> ent, ref ComponentShutdown args)
     {
         _actions.RemoveAction(ent.Owner, ent.Comp.InteractionToggleActionEntity);
     }
 
+    /// <summary>
+    /// Обрабатывает нажатие кнопки самозапрета.
+    /// </summary>
     private void OnToggleInteraction(Entity<AdminGhostComponent> ent, ref ToggleAghostInteractionActionEvent args)
     {
         if (args.Handled)
+            return;
+
+        // Само переключение происходит сразу, без задержки.
+        if (!TryToggleInteraction((ent.Owner, ent.Comp)))
             return;
 
         // Кулдаун кнопки после нажатия: следующее нажатие доступно только через несколько секунд.
@@ -56,15 +70,48 @@ public sealed partial class AdminGhostSystem : EntitySystem
         _actions.SetUseDelay(ent.Comp.InteractionToggleActionEntity, ent.Comp.ToggleCooldown);
 
         args.Handled = true;
+    }
 
+    /// <summary>
+    /// Пытается переключить самозапрет на взаимодействие с миром в противоположное состояние.
+    /// </summary>
+    /// <returns><c>true</c>, если переключение разрешено и выполнено.</returns>
+    public bool TryToggleInteraction(Entity<AdminGhostComponent?> ent)
+    {
+        if (!Resolve(ent, ref ent.Comp))
+            return false;
+
+        if (!CanToggleInteraction((ent.Owner, ent.Comp)))
+            return false;
+
+        DoToggleInteraction((ent.Owner, ent.Comp));
+        return true;
+    }
+
+    /// <summary>
+    /// Проверяет, можно ли переключить самозапрет на взаимодействие. Состояние не меняет.
+    /// </summary>
+    public bool CanToggleInteraction(Entity<AdminGhostComponent?> ent)
+    {
+        return Resolve(ent, ref ent.Comp)
+               && CanSetInteractionRestricted(ent, !ent.Comp.InteractionRestricted);
+    }
+
+    /// <summary>
+    /// Переключает самозапрет на взаимодействие без проверок.
+    /// </summary>
+    private void DoToggleInteraction(Entity<AdminGhostComponent> ent)
+    {
         // Состояние меняет только сервер, клиент получает его через синхронизацию компонента.
         if (!_net.IsServer)
             return;
 
-        // Само переключение происходит сразу, без задержки.
-        TrySetInteractionRestricted((ent.Owner, ent.Comp), !ent.Comp.InteractionRestricted);
+        SetInteractionRestricted(ent, !ent.Comp.InteractionRestricted);
     }
 
+    /// <summary>
+    /// Запрещает взаимодействовать с объектами мира, пока действует самозапрет.
+    /// </summary>
     private void OnInteractionAttempt(Entity<AdminGhostComponent> ent, ref InteractionAttemptEvent args)
     {
         // Проверка возможности выполнить собственное действие (Target == null) или взаимодействие с самим собой
@@ -78,21 +125,33 @@ public sealed partial class AdminGhostSystem : EntitySystem
             args.Cancelled = true;
     }
 
+    /// <summary>
+    /// Запрещает использовать предметы, пока действует самозапрет.
+    /// </summary>
     private void OnUseAttempt(Entity<AdminGhostComponent> ent, ref UseAttemptEvent args)
     {
         CancelIfRestricted(ent, args);
     }
 
+    /// <summary>
+    /// Запрещает подбирать предметы, пока действует самозапрет.
+    /// </summary>
     private void OnPickupAttempt(Entity<AdminGhostComponent> ent, ref PickupAttemptEvent args)
     {
         CancelIfRestricted(ent, args);
     }
 
+    /// <summary>
+    /// Запрещает выбрасывать предметы, пока действует самозапрет.
+    /// </summary>
     private void OnDropAttempt(Entity<AdminGhostComponent> ent, ref DropAttemptEvent args)
     {
         CancelIfRestricted(ent, args);
     }
 
+    /// <summary>
+    /// Отменяет событие, если самозапрет на взаимодействие включён.
+    /// </summary>
     private void CancelIfRestricted(Entity<AdminGhostComponent> ent, CancellableEntityEventArgs args)
     {
         if (ent.Comp.InteractionRestricted)
@@ -104,10 +163,13 @@ public sealed partial class AdminGhostSystem : EntitySystem
     /// </summary>
     public bool TrySetInteractionRestricted(Entity<AdminGhostComponent?> ent, bool value)
     {
-        if (!CanSetInteractionRestricted(ent, value))
+        if (!Resolve(ent, ref ent.Comp))
             return false;
 
-        SetInteractionRestricted((ent.Owner, ent.Comp!), value);
+        if (!CanSetInteractionRestricted((ent.Owner, ent.Comp), value))
+            return false;
+
+        SetInteractionRestricted((ent.Owner, ent.Comp), value);
         return true;
     }
 

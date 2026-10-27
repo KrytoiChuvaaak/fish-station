@@ -2,7 +2,7 @@
 - type: entity
   parent: BaseMentalAction
   id: FishActionAghostToggleInteraction
-  name: Toggle World Interaction
+  name: toggle world interaction
   description: Blocks picking up, using and dropping objects so you don't accidentally interfere with the round.
   suffix: Fish
   categories: [ HideSpawnMenu ]

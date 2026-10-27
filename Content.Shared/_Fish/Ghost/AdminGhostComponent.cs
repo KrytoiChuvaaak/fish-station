@@ -18,6 +18,10 @@ public sealed partial class AdminGhostComponent : Component
     [DataField]
     public EntProtoId InteractionToggleAction = "FishActionAghostToggleInteraction";
 
+    /// <summary>
+    /// Сущность выданного действия <see cref="InteractionToggleAction"/>.
+    /// Создаётся при инициализации агоста и удаляется вместе с компонентом.
+    /// </summary>
     [AutoNetworkedField]
     public EntityUid? InteractionToggleActionEntity;
 
