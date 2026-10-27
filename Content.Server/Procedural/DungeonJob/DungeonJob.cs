@@ -1,3 +1,4 @@
+using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using Content.Server.Decals;
@@ -53,6 +54,9 @@ public sealed partial class DungeonJob : Job<List<Dungeon>>
     private readonly MapGridComponent _grid;
 
     private readonly EntityCoordinates? _targetCoordinates;
+
+    // FIsh edit
+    private const float MaxSpawnDistance = 1500f;
 
     private readonly ISawmill _sawmill;
 
@@ -173,6 +177,23 @@ public sealed partial class DungeonJob : Job<List<Dungeon>>
         {
             var oldMap = _xformQuery.Comp(_gridUid).MapUid;
             _entManager.System<ShuttleSystem>().TryFTLProximity(_gridUid, _targetCoordinates.Value);
+
+            // FIsh edit - FTL proximity can expand over every grid on the map and throw the dungeon tens of
+            // thousands of tiles away, so fall back to the requested point if it ended up too far.
+            var targetMap = _transform.ToMapCoordinates(_targetCoordinates.Value);
+            var gridXform = _xformQuery.Comp(_gridUid);
+
+            if (gridXform.MapID == targetMap.MapId)
+            {
+                var gridCenter = Vector2.Transform(_grid.LocalAABB.Center, _transform.GetWorldMatrix(gridXform));
+                var maxDistance = MaxSpawnDistance + MathF.Max(_grid.LocalAABB.Width, _grid.LocalAABB.Height);
+
+                if ((gridCenter - targetMap.Position).Length() > maxDistance)
+                {
+                    _sawmill.Warning($"Dungeon {_entManager.ToPrettyString(_gridUid)} was placed too far away, moving it back to the target coordinates.");
+                    _transform.SetWorldPosition(_gridUid, targetMap.Position - _grid.LocalAABB.Center);
+                }
+            }
             _entManager.DeleteEntity(oldMap);
         }
 
