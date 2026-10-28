@@ -8,7 +8,7 @@ namespace Content.Server._Fish.Administration;
 /// <summary>
 /// Подписывает админского призрака его админской должностью, чтобы его было видно среди других призраков.
 /// </summary>
-public sealed class AdminGhostTitleSystem : EntitySystem
+public sealed partial class AdminGhostTitleSystem : EntitySystem
 {
     [Dependency] private IAdminManager _admin = default!;
     [Dependency] private ILocalizationManager _loc = default!;
