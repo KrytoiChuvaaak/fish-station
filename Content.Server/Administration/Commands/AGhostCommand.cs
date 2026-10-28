@@ -1,8 +1,9 @@
 using System.Linq;
-using Content.Server.Administration.Managers;
 using Content.Server.GameTicking;
 using Content.Server.Ghost;
 using Content.Server.Mind;
+// Fish-edit: система подписи агоста админской должностью лежит в _Fish
+using Content.Server._Fish.Administration;
 using Content.Shared.Administration;
 using Content.Shared.Ghost.Components;
 using Content.Shared.Ghost.Systems;
@@ -19,7 +20,6 @@ public sealed partial class AGhostCommand : LocalizedCommands
 {
     [Dependency] private IEntityManager _entities = default!;
     [Dependency] private ISharedPlayerManager _playerManager = default!;
-    [Dependency] private IAdminManager _adminManager = default!;
 
     public override string Command => "aghost";
     public override string Help => "aghost";
@@ -122,15 +122,8 @@ public sealed partial class AGhostCommand : LocalizedCommands
             mindSystem.TransferTo(mindId, ghost, mind: mind);
         }
 
-        // Fish-start: подписываем агоста его админской должностью, чтобы его было видно среди других призраков
-        if (_adminManager.GetAdminData(player!)?.Title is { } adminTitle
-            && !string.IsNullOrWhiteSpace(adminTitle))
-        {
-            var ghostName = _entities.GetComponent<MetaDataComponent>(ghost).EntityName;
-            metaDataSystem.SetEntityName(ghost, Loc.GetString("admin-ghost-name-with-title",
-                ("title", adminTitle),
-                ("name", ghostName)));
-        }
+        // Fish-start: подписываем агоста его админской должностью
+        _entities.System<AdminGhostTitleSystem>().ApplyAdminTitle(ghost, player!);
         // Fish-end
 
         var comp = _entities.GetComponent<GhostComponent>(ghost);

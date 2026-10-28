@@ -3,7 +3,7 @@
   parent: BaseMentalAction
   id: FishActionAghostToggleInteraction
   name: toggle world interaction
-  description: Blocks picking up, using and dropping objects so you don't accidentally interfere with the round.
+  description: "OOC: Blocks picking up, using and dropping objects so you don't accidentally interfere with the round."
   suffix: Fish
   categories: [ HideSpawnMenu ]
   components:

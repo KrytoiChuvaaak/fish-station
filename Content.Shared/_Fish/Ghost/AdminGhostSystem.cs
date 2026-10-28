@@ -102,10 +102,7 @@ public sealed partial class AdminGhostSystem : EntitySystem
     /// </summary>
     private void DoToggleInteraction(Entity<AdminGhostComponent> ent)
     {
-        // Состояние меняет только сервер, клиент получает его через синхронизацию компонента.
-        if (!_net.IsServer)
-            return;
-
+        // Состояние меняют и клиент (предсказание), и сервер. Сервер потом присылает своё значение через синхронизацию.
         SetInteractionRestricted(ent, !ent.Comp.InteractionRestricted);
     }
 
@@ -191,6 +188,10 @@ public sealed partial class AdminGhostSystem : EntitySystem
         Dirty(ent.Owner, ent.Comp);
 
         _actions.SetToggled(ent.Comp.InteractionToggleActionEntity, value);
+
+        // Всплывающее сообщение только на сервере, иначе оно задвоится при предсказании на клиенте.
+        if (!_net.IsServer)
+            return;
 
         var message = Loc.GetString(value
             ? "admin-ghost-interaction-restricted-on"
