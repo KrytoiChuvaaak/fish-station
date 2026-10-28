@@ -115,10 +115,6 @@
       - state: CAP-equipped-OUTERCLOTHING
   - type: ToggleableClothing
     clothingPrototype: ClothingHeadHatHoodWinterCaptain
-  # Fish-start - стамина-защита зимней куртки капитана
-  - type: StaminaResistance
-    damageCoefficient: 0.75
-  # Fish-end
 
 - type: entity
   parent: ClothingOuterWinterCoatToggleable
