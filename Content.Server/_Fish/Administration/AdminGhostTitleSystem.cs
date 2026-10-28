@@ -1,6 +1,5 @@
 using Content.Server.Administration.Managers;
 using Robust.Server.GameObjects;
-using Robust.Shared.Localization;
 using Robust.Shared.Player;
 
 namespace Content.Server._Fish.Administration;
@@ -11,7 +10,6 @@ namespace Content.Server._Fish.Administration;
 public sealed partial class AdminGhostTitleSystem : EntitySystem
 {
     [Dependency] private IAdminManager _admin = default!;
-    [Dependency] private ILocalizationManager _loc = default!;
     [Dependency] private IEntityManager _entities = default!;
     [Dependency] private MetaDataSystem _metaData = default!;
 
@@ -24,7 +22,7 @@ public sealed partial class AdminGhostTitleSystem : EntitySystem
             return;
 
         var ghostName = _entities.GetComponent<MetaDataComponent>(ghost).EntityName;
-        _metaData.SetEntityName(ghost, _loc.GetString("admin-ghost-name-with-title",
+        _metaData.SetEntityName(ghost, Loc.GetString("admin-ghost-name-with-title",
             ("title", title),
             ("name", ghostName)));
     }

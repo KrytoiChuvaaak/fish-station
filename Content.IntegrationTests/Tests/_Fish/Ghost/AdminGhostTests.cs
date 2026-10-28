@@ -12,6 +12,8 @@ using Content.Shared.Mind.Components;
 using Robust.Server.Console;
 using Robust.Server.GameObjects;
 using Robust.Server.Player;
+using Robust.Shared;
+using Robust.Shared.Configuration;
 using Robust.Shared.GameObjects;
 using Robust.Shared.Map;
 
@@ -151,5 +153,125 @@ public sealed class AdminGhostTests : GameTest
             entMan.EventBus.RaiseLocalEvent(ghost, dropAttempt);
             Assert.That(dropAttempt.Cancelled, Is.False);
         });
+    }
+
+    /// <summary>
+    /// Переключение самозапрета с клиента: с включённым предсказанием состояние меняется на клиенте сразу,
+    /// с выключенным — только после ответа сервера. В обоих случаях после синхронизации
+    /// самозапрет и кнопка совпадают на клиенте и на сервере.
+    /// Сетевая задержка в тестах уже включена (см. <c>net.fakelagmin</c> в EntryPoint).
+    /// </summary>
+    [TestCase(true)]
+    [TestCase(false)]
+    public async Task AghostToggleFromClient(bool prediction)
+    {
+        var pair = Pair;
+        var server = pair.Server;
+        var client = pair.Client;
+
+        var sEntMan = server.ResolveDependency<IEntityManager>();
+        var cEntMan = client.ResolveDependency<IEntityManager>();
+        var cCfg = client.ResolveDependency<IConfigurationManager>();
+
+        var (ghost, action) = await SpawnAghost();
+
+        var netGhost = NetEntity.Invalid;
+        await server.WaitPost(() => netGhost = sEntMan.GetNetEntity(ghost));
+        await pair.RunUntilSynced();
+
+        await client.WaitPost(() => cCfg.SetCVar(CVars.NetPredict, prediction));
+        try
+        {
+            EntityUid clientGhost = default;
+            await client.WaitPost(() => clientGhost = cEntMan.GetEntity(netGhost));
+
+            await client.WaitAssertion(() =>
+            {
+                var comp = cEntMan.GetComponent<AdminGhostComponent>(clientGhost);
+                Assert.That(comp.InteractionRestricted, Is.True);
+
+                cEntMan.RaisePredictiveEvent(new RequestPerformActionEvent(action));
+
+                // С предсказанием состояние меняется сразу, без него — только после ответа сервера.
+                Assert.That(comp.InteractionRestricted, Is.EqualTo(!prediction));
+            });
+
+            // Сервер событие ещё не обработал: тики на нём не шли.
+            await server.WaitAssertion(() =>
+            {
+                Assert.That(sEntMan.GetComponent<AdminGhostComponent>(ghost).InteractionRestricted, Is.True);
+            });
+
+            await pair.RunTicksSync(30);
+            await pair.RunUntilSynced();
+
+            // После синхронизации самозапрет снят и на сервере, и на клиенте.
+            await server.WaitAssertion(() =>
+            {
+                var comp = sEntMan.GetComponent<AdminGhostComponent>(ghost);
+                Assert.That(comp.InteractionRestricted, Is.False);
+                Assert.That(sEntMan.GetComponent<ActionComponent>(sEntMan.GetEntity(action)).Toggled, Is.False);
+            });
+
+            await client.WaitAssertion(() =>
+            {
+                var comp = cEntMan.GetComponent<AdminGhostComponent>(clientGhost);
+                Assert.That(comp.InteractionRestricted, Is.False);
+                Assert.That(cEntMan.GetComponent<ActionComponent>(cEntMan.GetEntity(action)).Toggled, Is.False);
+            });
+        }
+        finally
+        {
+            await client.WaitPost(() => cCfg.SetCVar(CVars.NetPredict, true));
+        }
+    }
+
+    /// <summary>
+    /// Создаёт игроку тело и превращает его в админского призрака командой aghost.
+    /// </summary>
+    /// <returns>Призрак на сервере и сетевой идентификатор кнопки самозапрета.</returns>
+    private async Task<(EntityUid Ghost, NetEntity Action)> SpawnAghost()
+    {
+        var pair = Pair;
+        var server = pair.Server;
+
+        var entMan = server.ResolveDependency<IServerEntityManager>();
+        var playerMan = server.ResolveDependency<IPlayerManager>();
+        var serverConsole = server.ResolveDependency<IServerConsoleHost>();
+
+        var player = playerMan.Sessions.Single();
+        var testMap = await pair.CreateTestMap();
+
+        await server.WaitAssertion(() =>
+        {
+            var mindSystem = entMan.System<SharedMindSystem>();
+
+            var body = entMan.SpawnEntity(null, testMap.GridCoords);
+            entMan.EnsureComponent<MindContainerComponent>(body);
+
+            var mind = mindSystem.CreateMind(player.UserId, "Aghost Tester");
+            mindSystem.TransferTo(mind, body, mind: mind);
+        });
+
+        await pair.RunUntilSynced();
+
+        await server.WaitAssertion(() =>
+        {
+            serverConsole.ExecuteCommand(player, "aghost");
+        });
+
+        await pair.RunUntilSynced();
+
+        EntityUid ghost = default;
+        var action = NetEntity.Invalid;
+
+        await server.WaitPost(() =>
+        {
+            ghost = player.AttachedEntity!.Value;
+            var actionUid = entMan.GetComponent<AdminGhostComponent>(ghost).InteractionToggleActionEntity!.Value;
+            action = entMan.GetNetEntity(actionUid);
+        });
+
+        return (ghost, action);
     }
 }
