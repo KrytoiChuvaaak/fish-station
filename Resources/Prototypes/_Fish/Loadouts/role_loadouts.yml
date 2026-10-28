@@ -56,22 +56,6 @@
   - Socks
 
 - type: roleLoadout
-  id: JobCentcommBlueShield
-  groups:
-  - BlueShieldHead # Fish-edit
-  - BlueShieldJumpsuit
-  - BlueShieldBackpack
-  - BlueShieldBelt
-  - BlueShieldNeck
-  - BlueShieldOuterClothing
-  - Trinkets
-  - SurvivalSecurity
-  - GroupSpeciesBreathTool
-  - Bra
-  - Pants
-  - Socks
-
-- type: roleLoadout
   id: JobCentcommMedicalDoctor
   groups:
   - GroupTankHarness
@@ -144,22 +128,6 @@
   - Socks
 
 - type: roleLoadout
-  id: JobRepresentativeBlueShield
-  groups:
-  - BlueShieldHead # Fish-edit
-  - BlueShieldJumpsuit
-  - BlueShieldBackpack
-  - BlueShieldBelt
-  - BlueShieldNeck
-  - BlueShieldOuterClothing
-  - Trinkets
-  - SurvivalSecurity
-  - GroupSpeciesBreathTool
-  - Bra
-  - Pants
-  - Socks
-
-- type: roleLoadout
   id: JobOversightOfficer
   groups:
   - LawyerJumpsuit
@@ -200,3 +168,19 @@
   - Bra
   - Pants
   - Socks #socks
+- type: roleLoadout
+  id: JobCentcommBlueShield
+  groups:
+  - BlueShieldHead # Fish-edit
+  - BlueShieldJumpsuit
+  - BlueShieldBackpack
+  - BlueShieldBelt
+  - BlueShieldNeck
+  - BlueShieldOuterClothing
+  - Trinkets
+  - SurvivalSecurity
+  - GroupSpeciesBreathTool
+  - Bra
+  - Pants
+  - Socks
+

@@ -251945,13 +251945,6 @@ entities:
     - type: Transform
       pos: -26.5,20.5
       parent: 2
-- proto: SpawnPointRepresentativeBlueShield
-  entities:
-  - uid: 32874
-    components:
-    - type: Transform
-      pos: 13.5,-13.5
-      parent: 2
 - proto: SpawnPointResearchAssistant
   entities:
   - uid: 32875

@@ -49,7 +49,6 @@
             Lawyer: [ 1, 1 ]
             #blueshield
             BlueShieldOfficer: [ 1, 1 ]
-            RepresentativeBlueShield: [ 1, 1 ]
             # engineering
             ChiefEngineer: [ 1, 1 ]
             SeniorEngineer: [ 1, 1 ]

@@ -93660,13 +93660,6 @@ entities:
     - type: Transform
       parent: 2
       pos: -44.5,-7.5
-- proto: SpawnPointRepresentativeBlueShield
-  entities:
-  - uid: 3072
-    components:
-    - type: Transform
-      parent: 2
-      pos: -15.5,14.5
 - proto: SpawnPointResearchAssistant
   entities:
   - uid: 13279

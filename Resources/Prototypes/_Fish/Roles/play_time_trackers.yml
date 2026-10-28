@@ -5,9 +5,6 @@
   id: JobCentCommofficer
 
 - type: playTimeTracker
-  id: JobCentcomBlueShield
-
-- type: playTimeTracker
   id: JobCentcommChef
 
 - type: playTimeTracker
@@ -20,9 +17,6 @@
   id: JobCentcommSectoralJudge
 
 - type: playTimeTracker
-  id: JobRepresentativeBlueShield
-
-- type: playTimeTracker
   id: JobOversightOfficer
 
 - type: playTimeTracker
@@ -32,4 +26,5 @@
   id: JobCentCommHead
 
 - type: playTimeTracker
-  id: JobBlueShieldFish
+  id: JobCentcomBlueShield
+

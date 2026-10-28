@@ -23,10 +23,6 @@
   job: CentcommBartender
 
 - type: chameleonOutfit
-  id: ChameleonOutfitCentcommBlueShield
-  job: CentcommBlueShield
-
-- type: chameleonOutfit
   id: ChameleonOutfitCentCommTrainee
   job: CentCommTrainee
 
@@ -35,5 +31,6 @@
   job: CentcommMedicalDoctor
 
 - type: chameleonOutfit
-  id: ChameleonOutfitRepresentativeBlueShield
-  job: RepresentativeBlueShield
+  id: ChameleonOutfitCentcommBlueShield
+  job: CentcommBlueShield
+
