@@ -57884,6 +57884,13 @@ entities:
     - type: Transform
       parent: 2
       pos: 4.5,-28.5
+- proto: SpawnPointCentcommBlueShield
+  entities:
+  - uid: 3835
+    components:
+    - type: Transform
+      parent: 2
+      pos: 4.5,-26.5
 - proto: SpawnPointCentcommChef
   entities:
   - uid: 3821
@@ -80334,10 +80341,3 @@ entities:
       parent: 2
       pos: 10.549292,-46.820942
 ...
-- proto: SpawnPointCentcommBlueShield
-  entities:
-  - uid: 3835
-    components:
-    - type: Transform
-      parent: 2
-      pos: 4.5,-26.5
