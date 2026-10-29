@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using System.Linq;
 using Content.IntegrationTests.Fixtures;
+using Content.Server.Administration.Managers;
 using Content.Shared._Fish.Ghost;
 using Content.Shared.Actions;
 using Content.Shared.Actions.Components;
@@ -23,6 +24,11 @@ namespace Content.IntegrationTests.Tests._Fish.Ghost;
 public sealed class AdminGhostTests : GameTest
 {
     /// <summary>
+    /// Должность администратора, которой подписывается имя агоста в тесте.
+    /// </summary>
+    private const string AdminTitle = "Тестовый админ";
+
+    /// <summary>
     /// Самозапрет на взаимодействие должен быть включён сразу при входе в агоста,
     /// переключение кнопки — без задержки, но с кулдауном на кнопке.
     /// </summary>
@@ -35,6 +41,7 @@ public sealed class AdminGhostTests : GameTest
         var entMan = server.ResolveDependency<IServerEntityManager>();
         var playerMan = server.ResolveDependency<IPlayerManager>();
         var serverConsole = server.ResolveDependency<IServerConsoleHost>();
+        var adminMan = server.ResolveDependency<IAdminManager>();
 
         var player = playerMan.Sessions.Single();
         var testMap = await pair.CreateTestMap();
@@ -55,7 +62,14 @@ public sealed class AdminGhostTests : GameTest
 
         await server.WaitAssertion(() =>
         {
+            // Должность админа должна попасть в имя призрака (AdminGhostTitleSystem).
+            var adminData = adminMan.GetAdminData(player);
+            Assert.That(adminData, Is.Not.Null);
+
+            var oldTitle = adminData!.Title;
+            adminData.Title = AdminTitle;
             serverConsole.ExecuteCommand(player, "aghost");
+            adminData.Title = oldTitle;
         });
 
         await pair.RunUntilSynced();
@@ -68,6 +82,9 @@ public sealed class AdminGhostTests : GameTest
             Assert.That(player.AttachedEntity, Is.Not.Null);
             ghost = player.AttachedEntity!.Value;
             item = entMan.SpawnEntity("ClothingBackpack", MapCoordinates.Nullspace);
+
+            // Имя агоста подписано должностью администратора.
+            Assert.That(entMan.GetComponent<MetaDataComponent>(ghost).EntityName, Does.Contain(AdminTitle));
 
             var comp = entMan.GetComponent<AdminGhostComponent>(ghost);
 
@@ -88,10 +105,11 @@ public sealed class AdminGhostTests : GameTest
 
         await server.WaitAssertion(() =>
         {
-            // Собственные кнопки агоста запрет блокировать не должен.
-            var ownAttempt = new InteractionAttemptEvent(ghost, null);
-            entMan.EventBus.RaiseLocalEvent(ghost, ref ownAttempt);
-            Assert.That(ownAttempt.Cancelled, Is.False);
+            // Общее взаимодействие без цели (например, строительство) при самозапрете должно блокироваться.
+            // Кнопки агоста на эту проверку не опираются: у них checkCanInteract: false.
+            var noTargetAttempt = new InteractionAttemptEvent(ghost, null);
+            entMan.EventBus.RaiseLocalEvent(ghost, ref noTargetAttempt);
+            Assert.That(noTargetAttempt.Cancelled, Is.True);
 
             // Собственные интерфейсы (BUI) тоже должны открываться: цель совпадает с самим агостом.
             var selfAttempt = new InteractionAttemptEvent(ghost, ghost);
@@ -140,6 +158,10 @@ public sealed class AdminGhostTests : GameTest
             var interactionAttempt = new InteractionAttemptEvent(ghost, item);
             entMan.EventBus.RaiseLocalEvent(ghost, ref interactionAttempt);
             Assert.That(interactionAttempt.Cancelled, Is.False);
+
+            var noTargetAttempt = new InteractionAttemptEvent(ghost, null);
+            entMan.EventBus.RaiseLocalEvent(ghost, ref noTargetAttempt);
+            Assert.That(noTargetAttempt.Cancelled, Is.False);
 
             var useAttempt = new UseAttemptEvent(ghost, item);
             entMan.EventBus.RaiseLocalEvent(ghost, useAttempt);
