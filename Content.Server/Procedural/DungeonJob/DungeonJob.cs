@@ -55,8 +55,6 @@ public sealed partial class DungeonJob : Job<List<Dungeon>>
 
     private readonly EntityCoordinates? _targetCoordinates;
 
-    private const float MaxSpawnDistance = 1500f; // Fish-edit: максимальное расстояние от целевой точки до спавна данжа
-
     private readonly ISawmill _sawmill;
 
     public DungeonJob(
@@ -190,7 +188,9 @@ public sealed partial class DungeonJob : Job<List<Dungeon>>
                 if ((gridCenter - targetMap.Position).Length() > maxDistance)
                 {
                     _sawmill.Warning($"Dungeon {_entManager.ToPrettyString(_gridUid)} was placed too far away, moving it back to the target coordinates.");
-                    _transform.SetWorldPosition(_gridUid, targetMap.Position - _grid.LocalAABB.Center);
+                    // Центр грида смещён от его начала с учётом поворота, который мог выставить TryFTLProximity.
+                    var centerOffset = gridCenter - _transform.GetWorldPosition(gridXform);
+                    _transform.SetWorldPosition(_gridUid, targetMap.Position - centerOffset);
                 }
             }
             // Fish-end
