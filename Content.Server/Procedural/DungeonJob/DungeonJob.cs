@@ -1,4 +1,4 @@
-using System.Numerics;
+using System.Numerics; // Fish-edit: нужен для Vector2.Transform в проверке расстояния спавна
 using System.Threading;
 using System.Threading.Tasks;
 using Content.Server.Decals;
@@ -55,8 +55,7 @@ public sealed partial class DungeonJob : Job<List<Dungeon>>
 
     private readonly EntityCoordinates? _targetCoordinates;
 
-    // FIsh edit
-    private const float MaxSpawnDistance = 1500f;
+    private const float MaxSpawnDistance = 1500f; // Fish-edit: максимальное расстояние от целевой точки до спавна данжа
 
     private readonly ISawmill _sawmill;
 
@@ -178,8 +177,8 @@ public sealed partial class DungeonJob : Job<List<Dungeon>>
             var oldMap = _xformQuery.Comp(_gridUid).MapUid;
             _entManager.System<ShuttleSystem>().TryFTLProximity(_gridUid, _targetCoordinates.Value);
 
-            // FIsh edit - FTL proximity can expand over every grid on the map and throw the dungeon tens of
-            // thousands of tiles away, so fall back to the requested point if it ended up too far.
+            // Fish-start: TryFTLProximity может расширить поиск на все гриды карты и унести данж на десятки тысяч тайлов,
+            // поэтому, если данж оказался слишком далеко, возвращаем его в запрошенную точку.
             var targetMap = _transform.ToMapCoordinates(_targetCoordinates.Value);
             var gridXform = _xformQuery.Comp(_gridUid);
 
@@ -194,6 +193,7 @@ public sealed partial class DungeonJob : Job<List<Dungeon>>
                     _transform.SetWorldPosition(_gridUid, targetMap.Position - _grid.LocalAABB.Center);
                 }
             }
+            // Fish-end
             _entManager.DeleteEntity(oldMap);
         }
 
