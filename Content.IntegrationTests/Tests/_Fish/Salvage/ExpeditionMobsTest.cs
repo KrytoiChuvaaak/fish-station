@@ -96,6 +96,9 @@ public sealed class ExpeditionMobsTest : GameTest
 
         await server.WaitAssertion(() =>
         {
+            // При генерации экспедиции карта стоит на паузе, пока на ней появляются мобы.
+            entMan.System<SharedMapSystem>().SetPaused(testMap.MapUid, true);
+
             var goliath = entMan.SpawnEntity(Goliath, testMap.GridCoords);
             var pirate = entMan.SpawnEntity(Pirate, testMap.GridCoords);
             var large = entMan.SpawnEntity(Pirate, testMap.GridCoords);
@@ -140,6 +143,9 @@ public sealed class ExpeditionMobsTest : GameTest
 
         await server.WaitPost(() =>
         {
+            // При генерации экспедиции карта стоит на паузе, пока на ней появляются мобы.
+            entMan.System<SharedMapSystem>().SetPaused(testMap.MapUid, true);
+
             foreach (var proto in GuaranteedGhostRoleBosses)
             {
                 onExpedition.Add((entMan.SpawnEntity(proto, testMap.GridCoords), proto));

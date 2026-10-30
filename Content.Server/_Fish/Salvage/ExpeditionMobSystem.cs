@@ -28,11 +28,12 @@ public sealed partial class ExpeditionMobSystem : EntitySystem
     /// <summary>
     /// Увеличивает радиусы обзора и агра у всех мобов с ИИ на карте экспедиции, чтобы они замечали игроков издалека
     /// и сразу атаковали, а не стояли на месте.
-    /// Вызывать нужно один раз, после того как все мобы появились.
+    /// Вызывать нужно один раз, после того как все мобы появились. Карта в этот момент ещё на паузе,
+    /// поэтому перебираем в том числе приостановленные сущности.
     /// </summary>
     public void BoostMobVision(EntityUid mapUid)
     {
-        var query = EntityQueryEnumerator<HTNComponent, TransformComponent>();
+        var query = AllEntityQuery<HTNComponent, TransformComponent>();
         while (query.MoveNext(out _, out var htn, out var xform))
         {
             if (xform.MapUid != mapUid)
@@ -46,11 +47,11 @@ public sealed partial class ExpeditionMobSystem : EntitySystem
     /// <summary>
     /// Снимает гост-роль и возможность захвата у всех мобов на карте экспедиции: у боссов с гарантированной ролью,
     /// у мобов с шансом на роль и у тех, кого создали спавнеры. Спавнеры гост-ролей, которые не являются мобами,
-    /// не затрагиваются.
+    /// не затрагиваются. Карта в этот момент ещё на паузе, поэтому перебираем в том числе приостановленные сущности.
     /// </summary>
     public void RemoveGhostRoles(EntityUid mapUid)
     {
-        var query = EntityQueryEnumerator<GhostRoleComponent, MobStateComponent, TransformComponent>();
+        var query = AllEntityQuery<GhostRoleComponent, MobStateComponent, TransformComponent>();
         while (query.MoveNext(out var uid, out _, out _, out var xform))
         {
             if (xform.MapUid != mapUid)
