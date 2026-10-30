@@ -119,6 +119,9 @@ public sealed class ExpeditionMobsTest : GameTest
             // Моб вне карты экспедиции не затронут.
             AssertRadii(entMan, elsewhere, 6f, 10f);
         });
+
+        // Пара очищает только последнюю созданную карту, первую убираем сами, чтобы не мешать следующим тестам.
+        await server.WaitPost(() => entMan.System<SharedMapSystem>().DeleteMap(testMap.MapId));
     }
 
     /// <summary>
@@ -175,8 +178,14 @@ public sealed class ExpeditionMobsTest : GameTest
                 Assert.That(entMan.HasComponent<GhostRoleComponent>(boss), Is.True, $"{proto} лишился роли на чужой карте");
             }
         });
+
+        // Пара очищает только последнюю созданную карту, первую убираем сами, чтобы не мешать следующим тестам.
+        await server.WaitPost(() => entMan.System<SharedMapSystem>().DeleteMap(testMap.MapId));
     }
 
+    /// <summary>
+    /// Проверяет, что у моба радиусы обзора и агра в блэкборде равны ожидаемым.
+    /// </summary>
     private static void AssertRadii(IEntityManager entMan, EntityUid mob, float vision, float aggro)
     {
         var blackboard = entMan.GetComponent<HTNComponent>(mob).Blackboard;

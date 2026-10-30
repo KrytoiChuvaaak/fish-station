@@ -10,6 +10,8 @@ namespace Content.Server._Fish.Salvage;
 /// </summary>
 public sealed partial class ExpeditionMobSystem : EntitySystem
 {
+    [Dependency] private IEntityManager _entManager = default!;
+
     /// <summary>
     /// Во сколько раз увеличиваются радиусы обзора и агра мобов экспедиции.
     /// </summary>
@@ -22,8 +24,6 @@ public sealed partial class ExpeditionMobSystem : EntitySystem
 
     private const string VisionRadiusKey = "VisionRadius";
     private const string AggroVisionRadiusKey = "AggroVisionRadius";
-
-    [Dependency] private IEntityManager _entManager = default!;
 
     /// <summary>
     /// Увеличивает радиусы обзора и агра у всех мобов с ИИ на карте экспедиции, чтобы они замечали игроков издалека
