@@ -18,6 +18,17 @@ public sealed class ExpeditionMobsTest : GameTest
     private const string Pirate = "MobPirateT1Knife";
 
     /// <summary>
+    /// По одному мобу из остальных веток, где шанс гост-роли был изменён: пираты T2 и T3, босс T3 и «советы».
+    /// </summary>
+    private static readonly string[] OtherBranches =
+    [
+        "MobPirateT2Cutlass",
+        "MobPirateT3Medic",
+        "MobPirateT3Boss",
+        "MobSovietT1Knife",
+    ];
+
+    /// <summary>
     /// Мобы экспедиций никогда не становятся гост-ролью и не получают AnomalyAccent.
     /// </summary>
     [Test]
@@ -27,14 +38,20 @@ public sealed class ExpeditionMobsTest : GameTest
         var entMan = server.ResolveDependency<IEntityManager>();
         var testMap = await Pair.CreateTestMap();
 
-        var pirates = new List<EntityUid>();
+        var mobs = new List<(EntityUid Uid, string Proto)>();
 
         await server.WaitPost(() =>
         {
-            // Раньше шанс гост-роли у пиратов был 10%, поэтому берём много, чтобы тест был надёжным.
+            // Раньше шанс гост-роли у пиратов T1 был 10%, поэтому берём много, чтобы тест был надёжным.
             for (var i = 0; i < 60; i++)
             {
-                pirates.Add(entMan.SpawnEntity(Pirate, testMap.GridCoords));
+                mobs.Add((entMan.SpawnEntity(Pirate, testMap.GridCoords), Pirate));
+            }
+
+            // Остальные изменённые ветки: у каждой свой шанс гост-роли в прототипе.
+            foreach (var proto in OtherBranches)
+            {
+                mobs.Add((entMan.SpawnEntity(proto, testMap.GridCoords), proto));
             }
         });
 
@@ -43,10 +60,10 @@ public sealed class ExpeditionMobsTest : GameTest
 
         await server.WaitAssertion(() =>
         {
-            foreach (var pirate in pirates)
+            foreach (var (mob, proto) in mobs)
             {
-                Assert.That(entMan.HasComponent<GhostRoleComponent>(pirate), Is.False);
-                Assert.That(entMan.HasComponent<AnomalyAccentComponent>(pirate), Is.False);
+                Assert.That(entMan.HasComponent<GhostRoleComponent>(mob), Is.False, $"{proto} стал гост-ролью");
+                Assert.That(entMan.HasComponent<AnomalyAccentComponent>(mob), Is.False, $"{proto} получил AnomalyAccent");
             }
         });
     }
@@ -60,13 +77,15 @@ public sealed class ExpeditionMobsTest : GameTest
         var server = Pair.Server;
         var entMan = server.ResolveDependency<IEntityManager>();
         var testMap = await Pair.CreateTestMap();
+        // Вторая карта, на которой моб не должен измениться.
+        var otherMap = await Pair.CreateTestMap();
 
         await server.WaitAssertion(() =>
         {
             var goliath = entMan.SpawnEntity(Goliath, testMap.GridCoords);
             var pirate = entMan.SpawnEntity(Pirate, testMap.GridCoords);
             var large = entMan.SpawnEntity(Pirate, testMap.GridCoords);
-            var elsewhere = entMan.SpawnEntity(Goliath, MapCoordinates.Nullspace);
+            var elsewhere = entMan.SpawnEntity(Goliath, otherMap.GridCoords);
 
             // У голиафа радиусы заданы в прототипе: обзор 6, агр 10. У пирата стандартные: 10 и 10.
             AssertRadii(entMan, goliath, 6f, 10f);
