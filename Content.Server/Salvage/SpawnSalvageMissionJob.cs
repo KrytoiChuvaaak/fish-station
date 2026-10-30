@@ -287,8 +287,10 @@ public sealed class SpawnSalvageMissionJob : Job<bool>
             }
         }
 
-        // Fish-start: мобы экспедиции замечают игроков издалека и сразу атакуют
-        _entManager.System<ExpeditionMobVisionSystem>().BoostMobVision(mapUid);
+        // Fish-start: мобы экспедиции замечают игроков издалека, сразу атакуют и не бывают гост-ролями
+        var expeditionMobs = _entManager.System<ExpeditionMobSystem>();
+        expeditionMobs.BoostMobVision(mapUid);
+        expeditionMobs.RemoveGhostRoles(mapUid);
         // Fish-end
 
         return true;

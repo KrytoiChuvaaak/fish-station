@@ -1,13 +1,14 @@
+using Content.Server.Ghost.Roles.Components;
 using Content.Server.NPC;
 using Content.Server.NPC.HTN;
+using Content.Shared.Mobs.Components;
 
 namespace Content.Server._Fish.Salvage;
 
 /// <summary>
-/// Увеличивает радиусы обзора и агра мобов экспедиции, чтобы они замечали игроков издалека и сразу атаковали,
-/// а не стояли на месте.
+/// Правила для мобов экспедиции: они замечают игроков издалека и никогда не становятся гост-ролями.
 /// </summary>
-public sealed partial class ExpeditionMobVisionSystem : EntitySystem
+public sealed partial class ExpeditionMobSystem : EntitySystem
 {
     /// <summary>
     /// Во сколько раз увеличиваются радиусы обзора и агра мобов экспедиции.
@@ -25,7 +26,8 @@ public sealed partial class ExpeditionMobVisionSystem : EntitySystem
     [Dependency] private IEntityManager _entManager = default!;
 
     /// <summary>
-    /// Увеличивает радиусы обзора и агра у всех мобов с ИИ на карте экспедиции.
+    /// Увеличивает радиусы обзора и агра у всех мобов с ИИ на карте экспедиции, чтобы они замечали игроков издалека
+    /// и сразу атаковали, а не стояли на месте.
     /// Вызывать нужно один раз, после того как все мобы появились.
     /// </summary>
     public void BoostMobVision(EntityUid mapUid)
@@ -38,6 +40,24 @@ public sealed partial class ExpeditionMobVisionSystem : EntitySystem
 
             ScaleRadius(htn.Blackboard, VisionRadiusKey);
             ScaleRadius(htn.Blackboard, AggroVisionRadiusKey);
+        }
+    }
+
+    /// <summary>
+    /// Снимает гост-роль и возможность захвата у всех мобов на карте экспедиции: у боссов с гарантированной ролью,
+    /// у мобов с шансом на роль и у тех, кого создали спавнеры. Спавнеры гост-ролей, которые не являются мобами,
+    /// не затрагиваются.
+    /// </summary>
+    public void RemoveGhostRoles(EntityUid mapUid)
+    {
+        var query = EntityQueryEnumerator<GhostRoleComponent, MobStateComponent, TransformComponent>();
+        while (query.MoveNext(out var uid, out _, out _, out var xform))
+        {
+            if (xform.MapUid != mapUid)
+                continue;
+
+            RemCompDeferred<GhostRoleComponent>(uid);
+            RemCompDeferred<GhostTakeoverAvailableComponent>(uid);
         }
     }
 
