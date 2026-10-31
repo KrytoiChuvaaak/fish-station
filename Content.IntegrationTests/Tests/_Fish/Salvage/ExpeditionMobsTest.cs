@@ -189,6 +189,27 @@ public sealed class ExpeditionMobsTest : GameTest
         await server.WaitPost(() => entMan.System<SharedMapSystem>().DeleteMap(testMap.MapId));
     }
 
+    // DIAG-TEMP: выводим причину dirty-disposed в CI, убрать после разбора.
+    public override async Task DoTeardown()
+    {
+        var result = TestContext.CurrentContext.Result;
+        TestContext.Out.WriteLine($"[diag] outcome={result.Outcome.Status} message={result.Message}");
+        foreach (var log in Pair.ServerLogHandler.FailingLogs)
+            TestContext.Out.WriteLine($"[diag] server error log: {log}");
+        foreach (var log in Pair.ClientLogHandler.FailingLogs)
+            TestContext.Out.WriteLine($"[diag] client error log: {log}");
+
+        try
+        {
+            await base.DoTeardown();
+        }
+        catch (Exception e)
+        {
+            TestContext.Out.WriteLine($"[diag] teardown exception: {e}");
+            throw;
+        }
+    }
+
     /// <summary>
     /// Проверяет, что у моба радиусы обзора и агра в блэкборде равны ожидаемым.
     /// </summary>
