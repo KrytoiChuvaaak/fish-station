@@ -51,13 +51,23 @@ public sealed partial class ExpeditionMobSystem : EntitySystem
     /// </summary>
     public void RemoveGhostRoles(EntityUid mapUid)
     {
-        var query = AllEntityQuery<GhostRoleComponent, MobStateComponent, TransformComponent>();
-        while (query.MoveNext(out var uid, out _, out _, out var xform))
+        var roles = AllEntityQuery<GhostRoleComponent, MobStateComponent, TransformComponent>();
+        while (roles.MoveNext(out var uid, out _, out _, out var xform))
         {
             if (xform.MapUid != mapUid)
                 continue;
 
             RemCompDeferred<GhostRoleComponent>(uid);
+        }
+
+        // Возможность захвата снимаем отдельно: гост-роль могла уже удалиться (например, при prob: 0 на MapInit),
+        // а захват остаться.
+        var takeovers = AllEntityQuery<GhostTakeoverAvailableComponent, MobStateComponent, TransformComponent>();
+        while (takeovers.MoveNext(out var uid, out _, out _, out var xform))
+        {
+            if (xform.MapUid != mapUid)
+                continue;
+
             RemCompDeferred<GhostTakeoverAvailableComponent>(uid);
         }
     }

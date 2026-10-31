@@ -33,11 +33,11 @@ public sealed class ExpeditionMobsTest : GameTest
 
     /// <summary>
     /// Боссы экспедиций с гарантированной гост-ролью (без случайного шанса и без prob у родителей).
+    /// MobRogueSiliconBossSkullHouse сюда не входит: у его роли prob: 0.35, и тест стал бы плавающим.
     /// </summary>
     private static readonly string[] GuaranteedGhostRoleBosses =
     [
         "MobRogueSiliconBoss",
-        "MobRogueSiliconBossSkullHouse",
         "MobDragonDungeon",
         "MobCarpRainbowDragon",
     ];
@@ -189,25 +189,40 @@ public sealed class ExpeditionMobsTest : GameTest
         await server.WaitPost(() => entMan.System<SharedMapSystem>().DeleteMap(testMap.MapId));
     }
 
-    // DIAG-TEMP: выводим причину dirty-disposed в CI, убрать после разбора.
-    public override async Task DoTeardown()
+    /// <summary>
+    /// Возможность захвата снимается и у моба, у которого гост-роль уже удалилась.
+    /// </summary>
+    [Test]
+    public async Task RemoveGhostRolesStripsTakeoverWithoutGhostRole()
     {
-        var result = TestContext.CurrentContext.Result;
-        TestContext.Out.WriteLine($"[diag] outcome={result.Outcome.Status} message={result.Message}");
-        foreach (var log in Pair.ServerLogHandler.FailingLogs)
-            TestContext.Out.WriteLine($"[diag] server error log: {log}");
-        foreach (var log in Pair.ClientLogHandler.FailingLogs)
-            TestContext.Out.WriteLine($"[diag] client error log: {log}");
+        var server = Pair.Server;
+        var entMan = server.ResolveDependency<IEntityManager>();
+        var testMap = await Pair.CreateTestMap();
+        var mob = EntityUid.Invalid;
 
-        try
+        await server.WaitPost(() =>
         {
-            await base.DoTeardown();
-        }
-        catch (Exception e)
+            entMan.System<SharedMapSystem>().SetPaused(testMap.MapUid, true);
+            mob = entMan.SpawnEntity(Pirate, testMap.GridCoords);
+            entMan.RemoveComponent<GhostRoleComponent>(mob);
+            entMan.EnsureComponent<GhostTakeoverAvailableComponent>(mob);
+        });
+
+        await server.WaitAssertion(() =>
         {
-            TestContext.Out.WriteLine($"[diag] teardown exception: {e}");
-            throw;
-        }
+            Assert.That(entMan.HasComponent<GhostRoleComponent>(mob), Is.False);
+            Assert.That(entMan.HasComponent<GhostTakeoverAvailableComponent>(mob), Is.True);
+
+            entMan.System<ExpeditionMobSystem>().RemoveGhostRoles(testMap.MapUid);
+        });
+
+        // Компоненты снимаются отложенно.
+        await server.WaitRunTicks(2);
+
+        await server.WaitAssertion(() =>
+        {
+            Assert.That(entMan.HasComponent<GhostTakeoverAvailableComponent>(mob), Is.False);
+        });
     }
 
     /// <summary>
